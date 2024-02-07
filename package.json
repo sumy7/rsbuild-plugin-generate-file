@@ -1,6 +1,23 @@
 {
   "name": "rsbuild-plugin-generate-file",
   "version": "0.1.0",
+  "license": "MIT",
+  "description": "A plugin for rsbuild to generate file",
+  "keywords": [
+    "rsbuild",
+    "plugin",
+    "generate",
+    "file"
+  ],
+  "author": "sumy7 <sumyggsun@gmail.com>",
+  "homepage": "https://github.com/sumy7/rsbuild-plugin-generate-file#readme",
+  "bugs": {
+    "url": "https://github.com/sumy7/rsbuild-plugin-generate-file/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sumy7/rsbuild-plugin-generate-file.git"
+  },
   "types": "./dist/types/index.d.ts",
   "main": "./dist/lib/index.js",
   "module": "./dist/es/index.js",

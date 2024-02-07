@@ -1,5 +1,7 @@
 # rsbuild-plugin-generate-file
 
+[![npm](https://img.shields.io/npm/dt/rsbuild-plugin-generate-file.svg)](https://www.npmjs.com/package/rsbuild-plugin-generate-file)  [![npm](https://img.shields.io/npm/v/rsbuild-plugin-generate-file.svg)](https://www.npmjs.com/package/rsbuild-plugin-generate-file) [![npm](https://img.shields.io/npm/l/rsbuild-plugin-generate-file.svg)](https://www.npmjs.com/package/rsbuild-plugin-generate-file)
+
 **rsbuild-plugin-generate-file** is a rsbuild plugin which generate static file and write them to dist folder after packaging.
 
 ## Usage

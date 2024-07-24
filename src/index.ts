@@ -1,4 +1,4 @@
-import { readFileSync, mkdirSync, existsSync, writeFile } from 'node:fs';
+import { readFileSync, mkdirSync, existsSync, writeFileSync } from 'node:fs';
 import { resolve, relative, dirname } from 'node:path';
 import { type RsbuildPlugin } from '@rsbuild/core';
 import * as mime from 'mime-types';
@@ -136,13 +136,9 @@ function generateFile(option: NormalizeGenerateFile) {
   const filePath = option.fullPath;
   const fileContent = generateContent(option);
   ensureDirectoryExistence(filePath);
-  writeFile(filePath, fileContent, { flag: 'w' }, error => {
-    if (error) {
-      throw error;
-    }
-
-    console.log(`Generate File to ${pc.green(filePath)}`);
-  });
+  // 使用同步方法写入文件
+  writeFileSync(filePath, fileContent, { flag: 'w' });
+  console.log(`Generate File to ${pc.green(filePath)}`);
 }
 
 /**

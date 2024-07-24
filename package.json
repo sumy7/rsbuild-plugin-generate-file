@@ -47,17 +47,17 @@
     "dist/"
   ],
   "devDependencies": {
-    "@modern-js/eslint-config": "2.46.1",
-    "@modern-js/module-tools": "2.46.1",
-    "@rsbuild/core": "^0.3.11",
+    "@modern-js/eslint-config": "2.56.1",
+    "@modern-js/module-tools": "2.56.1",
+    "@rsbuild/core": "^0.7.0",
     "@types/ejs": "^3.1.5",
     "@types/js-yaml": "^4.0.9",
     "@types/mime-types": "^2.1.4",
-    "@types/node": "~16.11.7",
-    "esbuild-plugin-raw": "^0.1.7",
-    "husky": "~8.0.1",
-    "lint-staged": "~13.1.0",
-    "prettier": "~2.8.1",
+    "@types/node": "~16.11.68",
+    "esbuild-plugin-raw": "^0.1.8",
+    "husky": "~8.0.3",
+    "lint-staged": "~13.1.4",
+    "prettier": "~2.8.8",
     "rimraf": "~3.0.2",
     "typescript": "~5.0.4"
   },
@@ -70,10 +70,10 @@
     "dist"
   ],
   "dependencies": {
-    "@rsbuild/shared": "^0.4.0",
-    "ejs": "^3.1.9",
+    "@rsbuild/shared": "^0.4.15",
+    "ejs": "^3.1.10",
     "js-yaml": "^4.1.0",
     "mime-types": "^2.1.35",
-    "picocolors": "^1.0.0"
+    "picocolors": "^1.0.1"
   }
 }

@@ -1,6 +1,7 @@
 {
   "name": "rsbuild-plugin-generate-file",
-  "version": "0.2.0",
+  "version": "0.3.0",
+  "type": "module",
   "license": "MIT",
   "description": "A plugin for rsbuild to generate file",
   "keywords": [
@@ -18,59 +19,65 @@
     "type": "git",
     "url": "git+https://github.com/sumy7/rsbuild-plugin-generate-file.git"
   },
-  "types": "./dist/types/index.d.ts",
-  "main": "./dist/lib/index.js",
-  "module": "./dist/es/index.js",
-  "scripts": {
-    "prepare": "modern build && husky install",
-    "dev": "modern dev",
-    "build": "modern build",
-    "build:watch": "modern build -w",
-    "reset": "rimraf ./**/node_modules",
-    "lint": "modern lint",
-    "change": "modern change",
-    "bump": "modern bump",
-    "pre": "modern pre",
-    "change-status": "modern change-status",
-    "gen-release-note": "modern gen-release-note",
-    "release": "modern release",
-    "new": "modern new",
-    "upgrade": "modern upgrade"
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
   },
-  "lint-staged": {
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "biome check .",
+    "lint:write": "biome check . --write",
+    "prepare": "simple-git-hooks && npm run build",
+    "test": "playwright test"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx nano-staged"
+  },
+  "nano-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": [
-      "node --max_old_space_size=8192 ./node_modules/eslint/bin/eslint.js --fix --color --cache --quiet"
+      "biome check --write --no-errors-on-unmatched"
     ]
   },
-  "eslintIgnore": [
-    "node_modules/",
-    "dist/"
-  ],
   "devDependencies": {
-    "@modern-js/eslint-config": "2.56.1",
-    "@modern-js/module-tools": "2.56.1",
-    "@rsbuild/core": "^0.7.0",
+    "@biomejs/biome": "^1.8.3",
+    "@playwright/test": "^1.46.1",
+    "@rsbuild/core": "^1.0.1",
     "@types/ejs": "^3.1.5",
     "@types/js-yaml": "^4.0.9",
     "@types/mime-types": "^2.1.4",
-    "@types/node": "~16.11.68",
-    "esbuild-plugin-raw": "^0.1.8",
-    "husky": "~8.0.3",
-    "lint-staged": "~13.1.4",
-    "prettier": "~2.8.8",
-    "rimraf": "~3.0.2",
-    "typescript": "~5.0.4"
+    "@types/node": "^20.16.2",
+    "nano-staged": "^0.8.0",
+    "playwright": "^1.46.1",
+    "simple-git-hooks": "^2.11.1",
+    "tsup": "^8.2.4",
+    "typescript": "^5.5.4",
+    "unplugin-raw": "^0.2.2"
   },
   "sideEffects": [],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "files": [
-    "dist"
-  ],
+  "peerDependencies": {
+    "@rsbuild/core": "1.x || ^1.0.1-beta.0"
+  },
+  "peerDependenciesMeta": {
+    "@rsbuild/core": {
+      "optional": true
+    }
+  },
+  "packageManager": "pnpm@9.9.0",
   "dependencies": {
-    "@rsbuild/shared": "^0.4.15",
     "ejs": "^3.1.10",
     "js-yaml": "^4.1.0",
     "mime-types": "^2.1.35",

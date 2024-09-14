@@ -1,11 +1,10 @@
 import { readFileSync, mkdirSync, existsSync, writeFileSync } from 'node:fs';
 import { resolve, relative, dirname } from 'node:path';
-import { type RsbuildPlugin } from '@rsbuild/core';
+import type { RequestHandler, RsbuildPlugin, RsbuildPluginAPI } from "@rsbuild/core";
 import * as mime from 'mime-types';
 import pc from 'picocolors';
 import { dump as yamlDump } from 'js-yaml';
 import ejs from 'ejs';
-import { type RequestHandler, type RsbuildPluginAPI } from '@rsbuild/shared';
 // @ts-expect-error
 import listTemplate from './view.ejs?raw';
 
@@ -33,7 +32,7 @@ export interface GenerateFile {
   /**
    * 输出使用的data
    */
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
 }
 
 /**
@@ -70,7 +69,7 @@ function normalizeOption(option: GenerateFile): NormalizeGenerateFile {
     template: '',
     ...option,
   };
-  const fullPath = resolve(distPath, generateFileOption.output!);
+  const fullPath = resolve(distPath, generateFileOption.output as string);
   const relativePath = `/${relative(distPath, fullPath)}`;
   const contentType =
     generateFileOption.contentType ||
@@ -120,7 +119,7 @@ function generateContent(option: NormalizeGenerateFile): string {
     return '';
   }
   if (option.type === 'template') {
-    const templatePath = resolve(option.template!);
+    const templatePath = resolve(option.template as string);
     const templateContent = readFileSync(templatePath, { encoding: 'utf8' });
     return ejs.render(templateContent, option.data);
   }
@@ -158,7 +157,7 @@ function devServerMiddleware(): RequestHandler {
       );
       res.end();
     } else if (generateFileMap.has(pathname)) {
-      const file = generateFileMap.get(pathname)!;
+      const file = generateFileMap.get(pathname) as NormalizeGenerateFile;
       res.writeHead(200, { 'Content-Type': file.contentType });
       res.write(generateContent(file));
       res.end();
@@ -187,15 +186,15 @@ export const pluginGenerateFile = (
     });
     api.onAfterCreateCompiler(() => {
       const resolvedConfig = api.getNormalizedConfig();
-      distPath = resolve(resolvedConfig.output.distPath.root!);
+      distPath = resolve(resolvedConfig.output.distPath.root as string);
       if (!options) {
         return;
       }
       if (Array.isArray(options)) {
-        options.forEach(option => {
+        for(const option of options) {
           const simpleOption = normalizeOption(option);
           generateFileMap.set(simpleOption.relativePath, simpleOption);
-        });
+        }
       } else {
         const simpleOption = normalizeOption(options);
         generateFileMap.set(simpleOption.relativePath, simpleOption);
@@ -216,9 +215,9 @@ export const pluginGenerateFile = (
     });
     api.onAfterBuild(() => {
       // 按顺序生成文件
-      Array.from(generateFileMap.values()).forEach(option => {
+      for(const option of generateFileMap.values()) {
         generateFile(option);
-      });
+      }
     });
   },
 });

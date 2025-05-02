@@ -1,10 +1,14 @@
-import { readFileSync, mkdirSync, existsSync, writeFileSync } from 'node:fs';
-import { resolve, relative, dirname } from 'node:path';
-import type { RequestHandler, RsbuildPlugin, RsbuildPluginAPI } from "@rsbuild/core";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, relative, resolve } from 'node:path';
+import type {
+  RequestHandler,
+  RsbuildPlugin,
+  RsbuildPluginAPI,
+} from '@rsbuild/core';
+import ejs from 'ejs';
+import { dump as yamlDump } from 'js-yaml';
 import * as mime from 'mime-types';
 import pc from 'picocolors';
-import { dump as yamlDump } from 'js-yaml';
-import ejs from 'ejs';
 // @ts-expect-error
 import listTemplate from './view.ejs?raw';
 
@@ -179,7 +183,7 @@ export const pluginGenerateFile = (
       return mergeRsbuildConfig(config, {
         dev: {
           setupMiddlewares: [
-            middlewares => middlewares.unshift(devServerMiddleware()),
+            (middlewares) => middlewares.unshift(devServerMiddleware()),
           ],
         },
       });
@@ -191,7 +195,7 @@ export const pluginGenerateFile = (
         return;
       }
       if (Array.isArray(options)) {
-        for(const option of options) {
+        for (const option of options) {
           const simpleOption = normalizeOption(option);
           generateFileMap.set(simpleOption.relativePath, simpleOption);
         }
@@ -215,7 +219,7 @@ export const pluginGenerateFile = (
     });
     api.onAfterBuild(() => {
       // 按顺序生成文件
-      for(const option of generateFileMap.values()) {
+      for (const option of generateFileMap.values()) {
         generateFile(option);
       }
     });

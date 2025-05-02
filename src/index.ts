@@ -1,7 +1,9 @@
+import { Buffer } from 'node:buffer';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, relative, resolve } from 'node:path';
 import type {
   RequestHandler,
+  RsbuildContext,
   RsbuildPlugin,
   RsbuildPluginAPI,
 } from '@rsbuild/core';
@@ -21,10 +23,15 @@ export interface GenerateFile {
    */
   output?: string;
   /**
-   * 文件输出格式，json-将data转换成JSON格式输出，yaml-将data转换成yaml格式输出，template-使用自定义模板，
+   * 文件输出格式：
+   * - json-将data转换成JSON格式输出
+   * - yaml-将data转换成yaml格式输出
+   * - template-使用自定义模板
+   * - raw-原样输出
+   *
    * 默认json格式
    */
-  type?: 'json' | 'yaml' | 'template';
+  type?: 'json' | 'yaml' | 'template' | 'raw';
   /**
    * devServer访问时返回的ContentType，默认根据output路径扩展名进行猜测
    */
@@ -36,7 +43,7 @@ export interface GenerateFile {
   /**
    * 输出使用的data
    */
-  data?: Record<string, unknown>;
+  data?: Record<string, unknown> | Buffer | string;
 }
 
 /**
@@ -50,9 +57,9 @@ interface NormalizeGenerateFile extends GenerateFile {
 export type PluginGenerateFileOptions = GenerateFile | GenerateFile[];
 
 /**
- * 解析后的全局配置项
+ * rsbuild context
  */
-// let config: ResolvedConfig;
+let context: RsbuildContext;
 /**
  * 文件生成根路径
  */
@@ -106,29 +113,48 @@ export function ensureDirectoryExistence(filePath: string) {
  * 获取生成的文件内容
  * @param option 生成文件选项
  */
-function generateContent(option: NormalizeGenerateFile): string {
+function generateContent(option: NormalizeGenerateFile): Buffer {
   if (!option.type) {
-    return '';
+    return Buffer.from('', 'utf-8');
   }
   if (option.type === 'json') {
     if (option.data) {
-      return JSON.stringify(option.data);
+      return Buffer.from(JSON.stringify(option.data), 'utf-8');
     }
-    return '';
+    return Buffer.from('', 'utf-8');
   }
   if (option.type === 'yaml') {
     if (option.data) {
-      return yamlDump(option.data);
+      return Buffer.from(yamlDump(option.data), 'utf-8');
     }
-    return '';
+    return Buffer.from('', 'utf-8');
   }
   if (option.type === 'template') {
-    const templatePath = resolve(option.template as string);
+    const templatePath = resolve(context.rootPath, option.template as string);
     const templateContent = readFileSync(templatePath, { encoding: 'utf8' });
-    return ejs.render(templateContent, option.data);
+    return Buffer.from(
+      ejs.render(
+        templateContent,
+        typeof option.data === 'object' && option.data !== null
+          ? option.data
+          : {},
+      ),
+      'utf-8',
+    );
+  }
+  if (option.type === 'raw') {
+    if (option.data) {
+      if (Buffer.isBuffer(option.data)) {
+        return option.data;
+      }
+      if (typeof option.data === 'string') {
+        return Buffer.from(option.data, 'utf-8');
+      }
+    }
+    return Buffer.from('', 'utf-8');
   }
   console.warn(`Unknown type [${option.type}]`);
-  return '';
+  return Buffer.from('', 'utf-8');
 }
 
 /**
@@ -179,6 +205,8 @@ export const pluginGenerateFile = (
 ): RsbuildPlugin => ({
   name: 'rsbuild-plugin-generate-file',
   setup(api: RsbuildPluginAPI) {
+    context = api.context;
+
     api.modifyRsbuildConfig((config, { mergeRsbuildConfig }) => {
       return mergeRsbuildConfig(config, {
         dev: {
@@ -189,8 +217,7 @@ export const pluginGenerateFile = (
       });
     });
     api.onAfterCreateCompiler(() => {
-      const resolvedConfig = api.getNormalizedConfig();
-      distPath = resolve(resolvedConfig.output.distPath.root as string);
+      distPath = resolve(context.distPath);
       if (!options) {
         return;
       }

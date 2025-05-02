@@ -22,6 +22,18 @@ export default defineConfig({
           version: '1.0.0',
         },
       },
+      // raw
+      {
+        type: 'raw',
+        output: 'rawFile.txt',
+        data: 'hello rawFile',
+      },
+      // raw Buffer
+      {
+        type: 'raw',
+        output: 'rawFileBuffer.txt',
+        data: Buffer.from('hello rawFileBuffer'),
+      },
     ]),
   ],
 });
